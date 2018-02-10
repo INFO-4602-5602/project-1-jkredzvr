@@ -35,6 +35,53 @@
     
     <script type="text/javascript">
         // Put your part one code here ***********************
+        d3.csv("./data/anscombe_I.csv", function(error,data){
+            if(error) throw error;
+            checkDataset(data)
+
+            // // Scale the range of the data
+            // x.domain(d3.extent(data, function(d) {return d[xVal];}));
+            // y.domain([0, d3.max(data, function(d) {return d[yVal];})])  //apply a max function on all data
+
+            // // Add the scatterplot points
+            // svg.selectAll("circle")
+            //        .data(data)
+            //    .enter()
+            //    .append("circle")
+            //    .attr("r",5)
+            //    .attr("cx", function(d){return x(d[xVal]);})
+            //    .attr("cy", function(d){return y(d[yVal]);})
+            //    .attr("fill","lightblue");
+
+
+            // // Add the X Axis
+            // svg.append("g")
+            //     .attr("transform","translate(0, "+ height+ ")")
+            //     .call(d3.axisBottom(x));
+
+            // // Add the Y Axis
+            // svg.append("g") 
+            //     .call(d3.axisLeft(y));
+
+            // //Add text labels
+            // var xLabel = svg.append("text")
+            //                 .attr("class","label")
+            //                 .text(xVal)
+            //                 .attr("x", width - 20)
+            //                 .attr("y", height -10);
+
+
+            // var yLabel = svg.append("text")
+            //                 .attr("class","label")
+            //                 .text(yVal)
+            //                 .attr("y", -10)
+            //                 .attr("transform", "rotate(90)")
+            //                 .style("text-anchor","start")  //Achor rotation at start of text
+            //                 .transition()
+            //                 .ease(d3.easeBounce)
+            //                 .duration(4000)
+            //                 .attr("r", function(d) {return d["Frequency"];});
+        });
 
         
         // Leave this to test your data uploading. All data uploading should be above this line
