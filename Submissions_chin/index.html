@@ -1,0 +1,733 @@
+<html>
+    <head>
+        <title>Project 0</title>
+        <link rel="stylesheet" href="project0.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <!--Put your D3 import statement between these two lines-->
+        <script src="http://d3js.org/d3.v4.js" charset="utf-8"></script>    
+        <!--Put your D3 import statement between these two lines-->
+    </head>
+
+    <body>
+    	<div id="partOne">
+            <h1>Part One: </h1>
+            I've made a change!
+    	</div>
+        
+        <div id="partTwo">
+            <h1>Part Two: </h1>
+            <div id="barchart">
+            </div>
+    	</div>
+        
+        <div id="partThree">
+            <h1>Part Three &amp; Four: </h1>
+            <div id="scatterplot">
+                <p id="scatterLabel"></p>
+            </div>
+    	</div>
+        
+        <div id="partFive">
+            <h1>Part Five: </h1>
+            <div id="scatterplotSet">
+            </div>
+             <div id="barcharts">
+            </div>
+    	</div>
+        <script type="text/javascript">
+            // Put your part one code here ***********************
+            d3.csv("./data/anscombe_I.csv", function(error,data){
+                if(error) throw error;
+                checkDataset(data)   
+            });
+
+            d3.csv("./data/anscombe_II.csv", function(error,data){
+                if(error) throw error;
+                checkDataset(data)   
+            });
+
+            d3.csv("./data/anscombe_III.csv", function(error,data){
+                if(error) throw error;
+                checkDataset(data)   
+            });
+
+            d3.csv("./data/anscombe_IV.csv", function(error,data){
+                if(error) throw error;
+                checkDataset(data)   
+            });
+            
+            // Leave this to test your data uploading. All data uploading should be above this line
+            function checkDataset(dataset) {
+                console.log(dataset.length)
+                if (dataset.length == 11)
+                    $("#partOne").append("<p>data loaded correctly</p>");
+                else
+                    $("#partOne").append("<p>data loaded incorrectly. Try using the debugger to help you find the bug!</p>");
+            }
+
+            // Put your part two code here ***********************
+
+            // First, we will create some constants to define non-data-related parts of the visualization
+            var w = 1024; // Width of our visualization
+            var h = 768; // Height of our visualization
+            var xOffset = 40; // Space for x-axis labels
+            var yOffset = 100; // Space for y-axis labels
+            var margin = 10; // Margin around visualization
+            var vals = ['x', 'y']; // List of data attributes
+            var xVal = vals[0]; // Value to plot on x-axis
+            var yVal = vals[1]; // Value to plot on y-axis
+
+            // set the dimensions and margins of the graph
+            var margin = {top: 20, right:20, left:50, bottom:30};
+            var width = 1024 - margin.left - margin.right;
+            var height = 768 - margin.top - margin.bottom;
+
+            // set the range method that maps values to pixel space
+            var x = d3.scaleLinear().range([0, width]);
+            var y = d3.scaleLinear().range([height, 0]);  //position in the y (0,0) starts at the bottom left corner
+
+            // append the svg obgect to the body of the page
+            // appends a 'group' element to 'svg'
+            // moves the 'group' element to the top left margin
+            var svg = d3.select("#barchart").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform","translate("+margin.left + "," + margin.top +")");
+
+            d3.csv("./data/anscombe_I.csv", function(error,data){
+                if(error) throw error;
+                // Scale the range of the data
+                //+d[xVal] since the values are strings and min,max,extents sorts by natural ordering...
+                x.domain(d3.extent(data, function(d) {
+                    return +d[xVal];}));
+
+                y.domain([0, d3.max(data, function(d) {
+                    return +d[yVal];})]);  //apply a max function on all data
+
+                // Add the scatterplot points
+                svg.selectAll("circle")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .attr("r",5)
+                    .attr("cx", function(d){return x(d[xVal]);})
+                    .attr("cy", function(d){return y(d[yVal]);})
+                    .attr("fill","lightblue");
+
+                // Add the X Axis
+                svg.append("g")
+                    .attr("transform","translate(0, "+ height+ ")")
+                    .call(d3.axisBottom(x));
+                
+                // Add the Y Axis
+                svg.append("g") 
+                    .call(d3.axisLeft(y));
+
+                svg.append("text")
+                    .attr("x", (width / 2))             
+                    .attr("y", 0 )
+                    .attr("text-anchor", "middle")  
+                    .style("font-size", "16px") 
+                    .style("text-decoration", "underline")  
+                    .text("Scatter Plot Anscombe Plot I");
+
+                //Add text labels
+                var xLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(xVal)
+                                .attr("x", width - 20)
+                                .attr("y", height -10)
+                                ;
+
+                var yLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(yVal)
+                                .attr("y", -10)
+                                .attr("transform", "rotate(90)")
+                                .style("text-anchor","start")
+            });  
+            
+            // A function to retrieve the next value in the vals list
+            function getNextVal(val) {
+                return vals[(vals.indexOf(val) + 1) % vals.length];
+            };
+
+
+            // Put your part three & four code here ***********************
+            var svg_linegraph = d3.select("#scatterplot").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform","translate("+margin.left + "," + margin.top +")");
+
+            var line = d3.line()
+                    .x(function(d) { return x(d[xVal]); })
+                    .y(function(d) { return y(d[yVal]); });
+
+            d3.csv("./data/anscombe_I.csv", function(error,data){
+                if(error) throw error;
+                
+                //Sort the data by x column
+                data.sort(function(a,b) {return b[xVal]-a[xVal];});
+
+                // Scale the range of the data
+                x.domain(d3.extent(data, function(d) {
+                    return +d[xVal];}));
+                y.domain([0, d3.max(data, function(d) {
+                    return +d[yVal];})]);  //apply a max function on all data
+
+                svg_linegraph.append("text")
+                    .attr("x", (width / 2))             
+                    .attr("y", 0 )
+                    .attr("text-anchor", "middle")  
+                    .style("font-size", "16px") 
+                    .style("text-decoration", "underline")  
+                    .text("Line Plot Anscombe Plot I");
+
+                // Add the scatterplot points
+                svg_linegraph.selectAll("circle")
+                   .data(data)
+                   .enter()
+                   .append("circle")
+                   .attr("r",5)
+                   .attr("cx", function(d){return x(d[xVal]);})
+                   .attr("cy", function(d){return y(d[yVal]);})
+                   .attr("fill","lightblue");
+
+
+                // Add the X Axis
+                svg_linegraph.append("g")
+                    .attr("transform","translate(0, "+ height+ ")")
+                    .call(d3.axisBottom(x));
+                
+                // Add the Y Axis
+                svg_linegraph.append("g") 
+                    .call(d3.axisLeft(y));
+
+                //Add text labels
+                var xLabel = svg_linegraph.append("text")
+                                .attr("class","label")
+                                .text(xVal)
+                                .attr("x", width - 20)
+                                .attr("y", height -10);
+
+                var yLabel = svg_linegraph.append("text")
+                                .attr("class","label")
+                                .text(yVal)
+                                .attr("y", -10)
+                                .attr("transform", "rotate(90)")
+                                .style("text-anchor","start")
+
+                svg_linegraph.append("path")
+                              .datum(data)
+                              .attr("fill", "none")
+                              .attr("stroke", "steelblue")
+                              .attr("stroke-linejoin", "round")
+                              .attr("stroke-linecap", "round")
+                              .attr("stroke-width", 1.5)
+                              .attr("d", line);
+            });
+
+            //
+            /*
+            When you click on a point, change the paragraph with the id scatterLabel to print out the x and y values of that point.
+            When you hover over a point, change it’s color (and change it back when you mouse out!).
+            */
+            var svg_interactiveScatter = d3.select("#scatterplot").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform","translate("+margin.left + "," + margin.top +")");
+
+            d3.csv("./data/anscombe_I.csv", function(error,data){
+                if(error) throw error;
+                // Scale the range of the data
+                //+d[xVal] since the values are strings and min,max,extents sorts by natural ordering...
+                x.domain(d3.extent(data, function(d) {
+                    return +d[xVal];}));
+
+                y.domain([0, d3.max(data, function(d) {
+                    return +d[yVal];})]);  //apply a max function on all data
+
+                // Add the scatterplot points
+                svg_interactiveScatter.selectAll("circle")
+                   .data(data)
+                   .enter()
+                   .append("circle")
+                   .attr("r",5)
+                   .attr("cx", function(d){return x(d[xVal]);})
+                   .attr("cy", function(d){return y(d[yVal]);})
+                   .attr("fill","lightblue")
+                   //Hover Interactions
+                   .on("mouseover", handleMouseOver)
+                   .on("mouseout", handleMouseOut)
+                   .on("click", handleMouseClick);
+
+                svg_interactiveScatter.append("text")
+                    .attr("x", (width / 2))             
+                    .attr("y", 0 )
+                    .attr("text-anchor", "middle")  
+                    .style("font-size", "16px") 
+                    .style("text-decoration", "underline")  
+                    .text("Interactive Scatter Plot: Anscombe_I");
+
+                // Add the X Axis
+                svg_interactiveScatter.append("g")
+                    .attr("transform","translate(0, "+ height+ ")")
+                    .call(d3.axisBottom(x));
+                
+                // Add the Y Axis
+                svg_interactiveScatter.append("g") 
+                    .call(d3.axisLeft(y));
+
+                //Add text labels
+                var xLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(xVal)
+                                .attr("x", width - 20)
+                                .attr("y", height -10);
+
+                var yLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(yVal)
+                                .attr("y", -10)
+                                .attr("transform", "rotate(90)")
+                                .style("text-anchor","start")
+            });
+
+            var ori_size = 5
+            var hover_size = 10
+            var ori_color = 'lightblue'
+            var hover_color = 'orange'
+            // Create Event Handlers for mouse
+            function handleMouseOver(d, i) {  // Add interactivity
+                console.log("Your mouse went over", d, i);
+                // Use D3 to select element, change color and size
+                d3.select(this)
+                    .attr('r',hover_size)
+                    .attr('fill',hover_color);
+
+                var self = d3.select(this);
+                // Specify where to put label of text
+                svg_interactiveScatter.append("text")
+                   .attr('id',"t" + d.x + "-" + d.y + "-" + i)  // Create an id for text so we can select it later for removing on mouseout
+                    .attr('x', function() { return self.attr('cx') - 40})
+                    .attr('y', function() { return self.attr('cy') - 10})
+                    .text(function() {
+                        return [d.x, d.y];  // Value of the text
+                    });
+            }
+
+            function handleMouseOut(d, i) {
+                // Use D3 to select element, change color back to normal
+                d3.select(this)
+                    .attr('r',ori_size)
+                    .attr('fill',ori_color);
+
+                d3.select("[id='t" + d.x + "-" + d.y + "-" + i+"']").remove();  // Remove text location
+            }
+
+            function handleMouseClick(d, i) {
+                //Change scatterLabel <p> to show x and y value
+                d3.select("#scatterLabel").text("Selected x: "+d.x+" , Selected y: "+d.y);
+            }
+
+            // Put your part five code here ***********************
+
+            //Subplot graphs
+            var w_sub = 1024/4; // Width of our visualization
+            var h_sub = 768/4; // Height of our visualization
+            var xOffset_sub = 40/4; // Space for x-axis labels
+            var yOffset_sub = 100/4; // Space for y-axis labels
+            var margin_sub = 10/4; // Margin around visualization
+
+
+            // set the dimensions and margins of the graph
+            var margin_sub = {top: 20, right:20, left:50, bottom:30};
+            var width_sub = 1024/4 - margin_sub.left - margin_sub.right;
+            var height_sub = 768/4 - margin_sub.top -margin_sub.bottom;
+
+            // set the ranges
+            var x_sub = d3.scaleLinear().range([0, width_sub]);
+            var y_sub = d3.scaleLinear().range([height_sub, 0]);  //position in the y (0,0) starts at the bottom left corner
+
+
+            var svg_anscombe1 = d3.select("#scatterplotSet").append("svg")
+                .attr("width", width_sub + margin_sub.left + margin_sub.right)
+                .attr("height", height_sub + margin_sub.top + margin_sub.bottom)
+                .append("g")
+                .attr("transform","translate("+margin_sub.left + "," + margin_sub.top +")");
+
+            d3.csv("./data/anscombe_I.csv", function(error,data){
+                if(error) throw error;
+                // Scale the range of the data
+                //+d[xVal] since the values are strings and min,max,extents sorts by natural ordering...
+                x_sub.domain(d3.extent(data, function(d) {
+                    return +d[xVal];}));
+
+                y_sub.domain([0, d3.max(data, function(d) {
+                    return +d[yVal];})]);  //apply a max function on all data
+
+                // Add the scatterplot points
+                svg_anscombe1.selectAll("circle")
+                   .data(data)
+                   .enter()
+                   .append("circle")
+                   .attr("r",2)
+                   .attr("cx", function(d){return x_sub(d[xVal]);})
+                   .attr("cy", function(d){return y_sub(d[yVal]);})
+                   .attr("fill","lightblue")
+
+                svg_anscombe1.append("text")
+                    .attr("x", (width_sub/2))             
+                    .attr("y", 0 )
+                    .attr("text-anchor", "middle")  
+                    .style("font-size", "16px") 
+                    .style("text-decoration", "underline")  
+                    .text("Anscombe I Scatter Plot");
+
+                // Add the X Axis
+                svg_anscombe1.append("g")
+                    .attr("transform","translate(0, "+ height_sub+ ")")
+                    .call(d3.axisBottom(x_sub));
+                
+                // Add the Y Axis
+                svg_anscombe1.append("g") 
+                    .call(d3.axisLeft(y_sub));
+
+                //Add text labels
+                var xLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(xVal)
+                                .attr("x", width_sub - 20)
+                                .attr("y", height_sub -10);
+
+                var yLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(yVal)
+                                .attr("y", -10)
+                                .attr("transform", "rotate(90)")
+                                .style("text-anchor","start")
+            });
+
+            var svg_anscombe2 = d3.select("#scatterplotSet").append("svg")
+                .attr("width", width_sub + margin_sub.left + margin_sub.right)
+                .attr("height", height_sub + margin_sub.top + margin_sub.bottom)
+                .append("g")
+                .attr("transform","translate("+margin_sub.left + "," + margin_sub.top +")");
+
+            d3.csv("./data/anscombe_II.csv", function(error,data){
+                if(error) throw error;
+                // Scale the range of the data
+                //+d[xVal] since the values are strings and min,max,extents sorts by natural ordering...
+                x_sub.domain(d3.extent(data, function(d) {
+                    return +d[xVal];}));
+
+                y_sub.domain([0, d3.max(data, function(d) {
+                    return +d[yVal];})]);  //apply a max function on all data
+
+                // Add the scatterplot points
+                svg_anscombe2.selectAll("circle")
+                   .data(data)
+                   .enter()
+                   .append("circle")
+                   .attr("r",2)
+                   .attr("cx", function(d){return x_sub(d[xVal]);})
+                   .attr("cy", function(d){return y_sub(d[yVal]);})
+                   .attr("fill","lightblue")
+
+                svg_anscombe2.append("text")
+                    .attr("x", (width_sub / 2))            
+                    .attr("y", 0 )
+                    .attr("text-anchor", "middle")  
+                    .style("font-size", "16px") 
+                    .style("text-decoration", "underline")  
+                    .text("Anscombe II Scatter Plot");
+
+                // Add the X Axis
+                svg_anscombe2.append("g")
+                    .attr("transform","translate(0, "+ height_sub+ ")")
+                    .call(d3.axisBottom(x_sub));
+                
+                // Add the Y Axis
+                svg_anscombe2.append("g") 
+                    .call(d3.axisLeft(y_sub));
+
+                //Add text labels
+                var xLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(xVal)
+                                .attr("x", width_sub - 20)
+                                .attr("y", height_sub -10);
+
+                var yLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(yVal)
+                                .attr("y", -10)
+                                .attr("transform", "rotate(90)")
+                                .style("text-anchor","start");
+            });
+
+            var svg_anscombe3 = d3.select("#scatterplotSet").append("svg")
+                .attr("width", width_sub + margin_sub.left + margin_sub.right)
+                .attr("height", height_sub + margin_sub.top + margin_sub.bottom)
+                .append("g")
+                .attr("transform","translate("+margin.left + "," + margin.top +")");
+
+            d3.csv("./data/anscombe_III.csv", function(error,data){
+                if(error) throw error;
+                // Scale the range of the data
+                //+d[xVal] since the values are strings and min,max,extents sorts by natural ordering...
+                x_sub.domain(d3.extent(data, function(d) {
+                    return +d[xVal];}));
+
+                y_sub.domain([0, d3.max(data, function(d) {
+                    return +d[yVal];})]);  //apply a max function on all data
+
+                // Add the scatterplot points
+                svg_anscombe3.selectAll("circle")
+                   .data(data)
+                   .enter()
+                   .append("circle")
+                   .attr("r",2)
+                   .attr("cx", function(d){return x_sub(d[xVal]);})
+                   .attr("cy", function(d){return y_sub(d[yVal]);})
+                   .attr("fill","lightblue")
+
+                svg_anscombe3.append("text")
+                    .attr("x", (width_sub /2 ))             
+                    .attr("y", -margin_sub )
+                    .attr("text-anchor", "middle")  
+                    .style("font-size", "16px") 
+                    .style("text-decoration", "underline")  
+                    .text("Anscombe III Scatter Plot");
+
+                // Add the X Axis
+                svg_anscombe3.append("g")
+                    .attr("transform","translate(0, "+ height_sub+ ")")
+                    .call(d3.axisBottom(x_sub));
+                
+                // Add the Y Axis
+                svg_anscombe3.append("g") 
+                    .call(d3.axisLeft(y_sub));
+
+                //Add text labels
+                var xLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(xVal)
+                                .attr("x", width_sub - 20)
+                                .attr("y", height_sub -10);
+
+                var yLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(yVal)
+                                .attr("y", -10)
+                                .attr("transform", "rotate(90)")
+                                .style("text-anchor","start")
+            });
+
+            var svg_anscombe4 = d3.select("#scatterplotSet").append("svg")
+                .attr("width", width_sub + margin_sub.left + margin_sub.right)
+                .attr("height", height_sub + margin_sub.top + margin_sub.bottom)
+                .append("g")
+                .attr("transform","translate("+margin_sub.left + "," + margin_sub.top +")");
+
+            d3.csv("./data/anscombe_IV.csv", function(error,data){
+                if(error) throw error;
+                // Scale the range of the data
+                //+d[xVal] since the values are strings and min,max,extents sorts by natural ordering...
+                x.domain([4, d3.max(data, function(d) {
+                    return +d[xVal];})]);
+
+                y.domain([0, d3.max(data, function(d) {
+                    return +d[yVal];})]);  //apply a max function on all data
+
+                // Add the scatterplot points
+                svg_anscombe4.selectAll("circle")
+                   .data(data)
+                   .enter()
+                   .append("circle")
+                   .attr("r",2)
+                   .attr("cx", function(d){return x_sub(d[xVal]);})
+                   .attr("cy", function(d){return y_sub(d[yVal]);})
+                   .attr("fill","lightblue")
+
+                svg_anscombe4.append("text")
+                    .attr("x", (width_sub / 2))             
+                    .attr("y", 0 )
+                    .attr("text-anchor", "middle")  
+                    .style("font-size", "16px") 
+                    .style("text-decoration", "underline")  
+                    .text("Anscombe IV Scatter Plot");
+
+                // Add the X Axis
+                svg_anscombe4.append("g")
+                    .attr("transform","translate(0, "+ height_sub+ ")")
+                    .call(d3.axisBottom(x_sub));
+                
+                // Add the Y Axis
+                svg_anscombe4.append("g") 
+                    .call(d3.axisLeft(y_sub));
+
+                //Add text labels
+                var xLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(xVal)
+                                .attr("x", width_sub - 20)
+                                .attr("y", height_sub -10);
+
+                var yLabel = svg.append("text")
+                                .attr("class","label")
+                                .text(yVal)
+                                .attr("y", -10)
+                                .attr("transform", "rotate(90)")
+                                .style("text-anchor","start");
+            });
+
+
+
+            //Bar charts
+            var bar_svg = d3.select("#barcharts").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom+10)
+                .append("g")
+                .attr("transform","translate("+margin.left + "," + margin.top +")");
+
+            var bar_x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+                bar_y = d3.scaleLinear().rangeRound([height, 0]);
+
+            var bar_g = bar_svg.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            
+            d3.csv("./data/anscombe_III.csv", function(error, data) {
+                if (error) throw error;
+
+                //build frequency data for the x
+                var frequency_x = {}
+                data.forEach(function(d) {
+                    console.log(d[xVal]);
+                    if (!frequency_x[d[xVal]]) {
+                        frequency_x[d[xVal]] = 0;
+                    }
+                    frequency_x[d[xVal]]++;
+                });
+
+                //Conver the object into an array of objects 
+                var data2 = d3.entries(frequency_x);
+                console.log(data2);
+            
+                bar_x.domain(data2.map(function(d) { return d.key; }));
+                bar_y.domain([0, d3.max(data2, function(d) { return d.value; })]);
+
+                bar_g.append("g")
+                    .attr("class", "axis axis--x")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(bar_x));
+
+                bar_g.append("g")
+                    .attr("class", "axis axis--y")
+                    .call(d3.axisLeft(bar_y))
+                    .append("text")
+                        .attr("class","label")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 11)
+                        .attr("dy", "0.71em")
+                        .attr("text-anchor", "end")
+                        .text("Frequency");
+
+                bar_g.append("text")
+                    .attr("x", (width /2 ))             
+                    .attr("y", -margin_sub )
+                    .attr("text-anchor", "middle")  
+                    .style("font-size", "16px") 
+                    .style("text-decoration", "underline")  
+                    .text("x-values for Anscombe III");
+
+                bar_g.selectAll(".bar")
+                    .data(data2)
+                    .enter().append("rect")
+                    .attr("class", "bar")
+                    .attr("x", function(d) { return bar_x(d.key); })
+                    .attr("y", function(d) { return bar_y(d.value); })
+                    .attr("width", bar_x.bandwidth())
+                    .attr("height", function(d) { return height - bar_y(d.value); });
+            });
+
+
+
+            //Bar charts
+            var bar_y_svg = d3.select("#barcharts").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom+10)
+                .append("g")
+                .attr("transform","translate("+margin.left + "," + margin.top +")");
+
+            var bar_x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+                bar_y = d3.scaleLinear().rangeRound([height, 0]);
+
+            var bar_y_g = bar_y_svg.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            
+            d3.csv("./data/anscombe_III.csv", function(error, data) {
+                if (error) throw error;
+
+                //build frequency data for the x
+                var frequency_y = {}
+                data.forEach(function(d) {
+                    console.log(d[yVal]);
+                    if (!frequency_y[d[yVal]]) {
+                        frequency_y[d[yVal]] = 0;
+                    }
+                    frequency_y[d[yVal]]++;
+                });
+
+                //Conver the object into an array of objects 
+                var data2 = d3.entries(frequency_y);
+                console.log(data2);
+            
+                bar_x.domain(data2.map(function(d) { return d.key; }));
+                bar_y.domain([0, d3.max(data2, function(d) { return d.value; })]);
+
+                bar_y_g.append("g")
+                    .attr("class", "axis axis--x")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(bar_x));
+
+                bar_y_g.append("g")
+                    .attr("class", "axis axis--y")
+                    .call(d3.axisLeft(bar_y))
+                    .append("text")
+                        .attr("class","label")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 11)
+                        .attr("dy", "0.71em")
+                        .attr("text-anchor", "end")
+                        .text("Frequency");
+
+                bar_y_g.append("text")
+                    .attr("x", (width /2 ))             
+                    .attr("y", -margin_sub )
+                    .attr("text-anchor", "middle")  
+                    .style("font-size", "16px") 
+                    .style("text-decoration", "underline")  
+                    .text("y-values for Anscombe III");
+
+                bar_y_g.selectAll(".bar")
+                    .data(data2)
+                    .enter().append("rect")
+                    .attr("class", "bar")
+                    .attr("x", function(d) { return bar_x(d.key); })
+                    .attr("y", function(d) { return bar_y(d.value); })
+                    .attr("width", bar_x.bandwidth())
+                    .attr("height", function(d) { return height - bar_y(d.value); });
+            });
+
+
+
+
+
+        </script>
+    </body>
+
+</html>

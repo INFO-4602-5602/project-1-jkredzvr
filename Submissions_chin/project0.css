@@ -1,0 +1,36 @@
+body {
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+.axis { font: 14px sans-serif; }
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.point {
+    fill: #f00; 
+    stroke: #000;
+}
+
+.label {
+    text-anchor: middle;
+    font-size: 14px;
+    /*font-weight: bold;*/
+    /*cursor: pointer;*/
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis--x path {
+  display: none;
+}
