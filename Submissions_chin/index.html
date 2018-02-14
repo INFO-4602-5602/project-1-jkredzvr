@@ -147,11 +147,6 @@
                                 .attr("transform", "rotate(90)")
                                 .style("text-anchor","start")
             });  
-            
-            // A function to retrieve the next value in the vals list
-            function getNextVal(val) {
-                return vals[(vals.indexOf(val) + 1) % vals.length];
-            };
 
 
             // Put your part three & four code here ***********************
@@ -194,7 +189,6 @@
                    .attr("cx", function(d){return x(d[xVal]);})
                    .attr("cy", function(d){return y(d[yVal]);})
                    .attr("fill","lightblue");
-
 
                 // Add the X Axis
                 svg_linegraph.append("g")
@@ -264,6 +258,7 @@
                    .on("mouseout", handleMouseOut)
                    .on("click", handleMouseClick);
 
+                //graph title
                 svg_interactiveScatter.append("text")
                     .attr("x", (width / 2))             
                     .attr("y", 0 )
@@ -296,6 +291,7 @@
                                 .style("text-anchor","start")
             });
 
+            //Default circle properties values for handling mouse over/out
             var ori_size = 5
             var hover_size = 10
             var ori_color = 'lightblue'
@@ -308,6 +304,7 @@
                     .attr('r',hover_size)
                     .attr('fill',hover_color);
 
+                //Get a reference to the DOM selected (circle)
                 var self = d3.select(this);
                 // Specify where to put label of text
                 svg_interactiveScatter.append("text")
@@ -334,7 +331,6 @@
             }
 
             // Put your part five code here ***********************
-
             //Subplot graphs
             var w_sub = 1024/4; // Width of our visualization
             var h_sub = 768/4; // Height of our visualization
@@ -722,12 +718,6 @@
                     .attr("width", bar_x.bandwidth())
                     .attr("height", function(d) { return height - bar_y(d.value); });
             });
-
-
-
-
-
         </script>
     </body>
-
 </html>

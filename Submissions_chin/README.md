@@ -37,7 +37,7 @@ The x axis values or domain is simply the keys of the objects in the x frequency
 The bars are rects with the width's set by bandwidth(), which equally distributes the width size according the set svg width and number of bars in the data.  The height of the bar is the height of the svg subtracted by the frequency mapped along the y axis.
 
 
-
+Extras Done:
 Bell: Tooltips (DONE)
 Create a tooltip that shows the x- and y-value of each point when you hover over a point in the Part 3 scatterplot.
 
